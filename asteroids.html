@@ -52,6 +52,12 @@
             ship.x - ship.r * (Math.cos(ship.a) + Math.sin(ship.a)),
             ship.y + ship.r * (Math.sin(ship.a) - Math.cos(ship.a))
         );
+        context.lineTo(
+            // rear right of ship
+            ship.x - ship.r * (Math.cos(ship.a) - Math.sin(ship.a)),
+            ship.y + ship.r * (Math.sin(ship.a) + Math.cos(ship.a))
+        ); 
+        context.closePath();
         context.stroke();
 
 
@@ -59,6 +65,10 @@
 
 
         // move ship
+        
+
+        // center dot ? // come back to this
+
     }
     
     </script>
