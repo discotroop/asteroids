@@ -17,6 +17,8 @@
     const FPS = 30;
     // ship height in pixels
     const ShipSize = 30;
+    // turn speed in degrees per sec.
+    const turnSpeed = 360 
 
 
     /** @type {HTMLCanvasElement} */
@@ -28,10 +30,45 @@
         y: canv.height / 2,
         r: ShipSize / 2,
         a: 90 / 180 * Math.PI, // convert to radians
+        rot: 0,
     }
+    // set event handlers
+    document.addEventListener("keydown", keyDown);
+    document.addEventListener("keyup", keyUp);
 
     //set up game loop
     setInterval(update, 1000 / FPS);
+
+    function keyDown(/** @type {@keyboardEvent} */ ev) {
+        console.log("key down")
+        console.log(ev)
+        switch(ev.keyCode) {
+            case 37: //left
+            ship.rot = turnSpeed / 180 * Math.PI / FPS;
+            break;
+            case 38: // up
+            break;
+            case 39: // right
+            ship.rot = -turnSpeed / 180 * Math.PI / FPS;
+            break;
+            case 40: // down
+            break;
+        }
+    }
+    function keyUp(/** @type {@keyboardEvent} */ ev) {
+        switch(ev.keyCode) {
+            case 37: //left stop rotating
+            ship.rot = 0;
+            break;
+            case 38: // stop up
+            break;
+            case 39: // right stop rotating
+            ship.rot = 0;
+            break;
+            case 40: // down
+            break;
+        }
+    }
 
     function update() {
         // draw space
@@ -49,19 +86,20 @@
         );
         context.lineTo(
             // rear left of ship
-            ship.x - ship.r * (Math.cos(ship.a) + Math.sin(ship.a)),
-            ship.y + ship.r * (Math.sin(ship.a) - Math.cos(ship.a))
+            ship.x - ship.r * (2 / 3 * Math.cos(ship.a) + Math.sin(ship.a)),
+            ship.y + ship.r * (2 / 3 * Math.sin(ship.a) - Math.cos(ship.a))
         );
         context.lineTo(
             // rear right of ship
-            ship.x - ship.r * (Math.cos(ship.a) - Math.sin(ship.a)),
-            ship.y + ship.r * (Math.sin(ship.a) + Math.cos(ship.a))
+            ship.x - ship.r * (2 / 3 * Math.cos(ship.a) - Math.sin(ship.a)),
+            ship.y + ship.r * (2 / 3 * Math.sin(ship.a) + Math.cos(ship.a))
         ); 
         context.closePath();
         context.stroke();
 
-
+ 
         // rotate ship
+        ship.a += ship.rot;
 
 
         // move ship
