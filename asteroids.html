@@ -15,11 +15,20 @@
     
     // frames per second
     const FPS = 30;
+    // ship height in pixels
+    const ShipSize = 30;
 
 
     /** @type {HTMLCanvasElement} */
     var canv = document.getElementById("gameCanvas");
     var context = canv.getContext("2d");
+
+    var ship = {
+        x: canv.width / 2,
+        y: canv.height / 2,
+        r: ShipSize / 2,
+        a: 90 / 180 * Math.PI, // convert to radians
+    }
 
     //set up game loop
     setInterval(update, 1000 / FPS);
@@ -28,7 +37,23 @@
         // draw space
         context.fillstyle = "black";
         context.fillRect(0, 0, canv.width, canv.height);
-        // draw ship
+
+        // draw triangular ship
+        context.strokeStyle = "white",
+        context.lineWidth = ShipSize / 20;
+        context.beginPath();
+        context.moveTo(
+            // trig
+            ship.x + ship.r * Math.cos(ship.a),
+            ship.y - ship.r * Math.sin(ship.a),
+        );
+        context.lineTo(
+            // rear left of ship
+            ship.x - ship.r * (Math.cos(ship.a) + Math.sin(ship.a)),
+            ship.y + ship.r * (Math.sin(ship.a) - Math.cos(ship.a))
+        );
+        context.stroke();
+
 
         // rotate ship
 
