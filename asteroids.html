@@ -19,6 +19,10 @@
     const ShipSize = 30;
     // turn speed in degrees per sec.
     const turnSpeed = 360 
+    // base thrust - acceleration in pixels per sec.
+    const shipThrust = 5;
+    // friction
+    const friction = 0.7;
 
 
     /** @type {HTMLCanvasElement} */
@@ -31,6 +35,11 @@
         r: ShipSize / 2,
         a: 90 / 180 * Math.PI, // convert to radians
         rot: 0,
+        thrusting: false,
+        thrust: {
+            x: 0,
+            y: 0
+        }
     }
     // set event handlers
     document.addEventListener("keydown", keyDown);
@@ -40,13 +49,12 @@
     setInterval(update, 1000 / FPS);
 
     function keyDown(/** @type {@keyboardEvent} */ ev) {
-        console.log("key down")
-        console.log(ev)
         switch(ev.keyCode) {
             case 37: //left
             ship.rot = turnSpeed / 180 * Math.PI / FPS;
             break;
             case 38: // up
+            ship.thrusting = true;
             break;
             case 39: // right
             ship.rot = -turnSpeed / 180 * Math.PI / FPS;
@@ -61,6 +69,7 @@
             ship.rot = 0;
             break;
             case 38: // stop up
+            ship.thrusting = false;
             break;
             case 39: // right stop rotating
             ship.rot = 0;
@@ -75,8 +84,37 @@
         context.fillstyle = "black";
         context.fillRect(0, 0, canv.width, canv.height);
 
+        // thrust ship
+        if (ship.thrusting) {
+            ship.thrust.x += shipThrust * Math.cos(ship.a) / FPS ;
+            ship.thrust.y -= shipThrust * Math.sin(ship.a) / FPS ;
+
+            // context.fillstyle is a problem
+            context.strokeStyle = "yellow";
+            context.lineWidth = ShipSize / 20;
+            context.beginPath();
+            context.moveTo( //rear left 
+                ship.x - ship.r * (2 / 3 * Math.cos(ship.a) + 0.5 * Math.sin(ship.a)),
+                ship.y + ship.r * (2 / 3 * Math.sin(ship.a) - 0.5 * Math.cos(ship.a))
+            );
+            context.lineTo(
+                ship.x - ship.r * 6 / 3 * Math.cos(ship.a),
+                ship.y + ship.r * 6 / 3 * Math.sin(ship.a)
+            );
+            context.lineTo(
+                ship.x - ship.r * (2 / 3 * Math.cos(ship.a) - 0.5 * Math.sin(ship.a)),
+                ship.y + ship.r * (2 / 3 * Math.sin(ship.a) + 0.5 * Math.cos(ship.a))
+            ); 
+            context.closePath();
+            context.fill();
+            context.stroke();
+        } else {
+            ship.thrust.x -= friction * ship.thrust.x / FPS;
+            ship.thrust.y -= friction * ship.thrust.y / FPS;
+        }
+
         // draw triangular ship
-        context.strokeStyle = "white",
+        context.strokeStyle = "white";
         context.lineWidth = ShipSize / 20;
         context.beginPath();
         context.moveTo(
@@ -103,6 +141,20 @@
 
 
         // move ship
+        ship.x += ship.thrust.x;
+        ship.y += ship.thrust.y;
+
+        // handle edge of screen
+        if (ship.x < 0 - ship.r) {
+            ship.x = canv.width + ship.r;
+        } else if (ship.x > canv.width + ship.r) {
+            ship.x = 0 - ship.r;
+        }
+        if (ship.y < 0 - ship.r) {
+            ship.y = canv.height + ship.r;
+        } else if (ship.y > canv.height + ship.r) {
+            ship.y = 0 - ship.r;
+        }
         
 
         // center dot ? // come back to this
